@@ -1,6 +1,25 @@
+# --- Secrets & runtime state (NEVER commit) ---
 .env
-backups/
-postgres/
+
+# --- n8n / Postgres runtime data ---
 data/
+postgres/
+backups/
+
+# --- Database dumps ---
 *.sql
 *.sql.gz
+
+# --- Logs ---
+*.log
+
+# --- Editor / OS cruft ---
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Temporary / scratch files ---
+*.tmp
+*.bak
