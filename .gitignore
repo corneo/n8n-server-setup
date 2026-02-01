@@ -15,10 +15,15 @@ backups/
 
 # --- Editor / OS cruft ---
 .DS_Store
-.vscode/
 .idea/
 *.swp
 *.swo
+
+# VS Code: ignore most workspace noise, but allow committing a couple of
+# workspace-level convenience files if you want (safe for public repos).
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 # --- Temporary / scratch files ---
 *.tmp
