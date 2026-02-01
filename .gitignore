@@ -1,0 +1,6 @@
+.env
+backups/
+postgres/
+data/
+*.sql
+*.sql.gz
