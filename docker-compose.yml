@@ -4,8 +4,10 @@ services:
     image: "n8nio/n8n:${N8N_VERSION:-latest}"
     container_name: n8n
     restart: unless-stopped
+
     ports:
       - "5678:5678"
+
     environment:
       # --- Basic ---
       TZ: ${TZ:-America/New_York}
@@ -44,6 +46,7 @@ services:
 
     volumes:
       - /opt/n8n/data:/home/node/.n8n
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,14 +55,29 @@ services:
     image: postgres:16-alpine
     container_name: n8n-postgres
     restart: unless-stopped
+
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # Exposing Postgres is OPTIONAL.
+    # Purpose: allow TablePlus (or other SQL client) access from your LAN for convenience.
+    # Risk: increases blast radius if a host on that network can reach this port.
+    #
+    # Mitigation plan:
+    # - Use UniFi firewall rules to allow TCP/5432 only from your admin laptop IP
+    #   (and drop other sources).
+    #
+    # Safer mode (no LAN exposure):
+    # - Set POSTGRES_BIND_IP=127.0.0.1 and use SSH port forwarding when needed:
+    #     ssh -L 5432:127.0.0.1:5432 tim@n8n
     ports:
-      - "${N8N_HOST_IP:-127.0.0.1}:5432:5432"
+      - "${POSTGRES_BIND_IP:-127.0.0.1}:5432:5432"
+
     volumes:
       - /opt/n8n/postgres:/var/lib/postgresql/data
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 10s
@@ -69,9 +87,11 @@ services:
   n8n-runners:
     image: "n8nio/runners:${N8N_VERSION:-latest}"
     container_name: n8n-runners
+    restart: unless-stopped
+
     environment:
       N8N_RUNNERS_TASK_BROKER_URI: "http://n8n:5679"
       N8N_RUNNERS_AUTH_TOKEN: ${N8N_RUNNERS_AUTH_TOKEN}
-    restart: unless-stopped
+      
     depends_on:
       - n8n
