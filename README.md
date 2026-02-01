@@ -126,6 +126,27 @@ gunzip -c /opt/n8n/backups/n8n-YYYY-MM-DD.sql.gz | docker exec -i n8n-postgres p
 
 ---
 
+## Optional: Postgres access from TablePlus (LAN)
+
+By default this stack can expose Postgres on the host for convenience (TablePlus, etc.).
+This is controlled by:
+
+- `POSTGRES_BIND_IP` (in `.env`)
+
+Examples:
+
+- **Safer default (host-only):**
+  - `POSTGRES_BIND_IP=127.0.0.1`
+  - Use SSH tunneling when needed:
+    ```bash
+    ssh -L 5432:127.0.0.1:5432 tim@n8n
+    ```
+  - Then connect TablePlus to `localhost:5432`
+
+- **LAN convenience mode:**
+  - `POSTGRES_BIND_IP=<host VLAN interface IP>` (e.g. `10.20.0.6`)
+  - Strongly recommended: restrict access with UniFi firewall rules so only your admin laptop can reach TCP/5432.
+
 ## Notes
 
 - This repo intentionally does not attempt to integrate 1Password CLI (`op`) on the server.
@@ -134,3 +155,54 @@ gunzip -c /opt/n8n/backups/n8n-YYYY-MM-DD.sql.gz | docker exec -i n8n-postgres p
   `N8N_SECURE_COOKIE=false`.
 
 ---
+
+## TODO: Restrict Postgres LAN Access with UniFi Firewall Rules
+
+Postgres is optionally exposed on the host to allow convenient access from tools
+like TablePlus during n8n workflow development. This increases the blast radius
+unless access is explicitly restricted.
+
+**Planned mitigation (recommended):**
+
+### Preconditions
+
+- Assign a **static / reserved IP** to your admin laptop (DHCP reservation).
+- Ensure the n8n host has a **stable IP** on its VLAN (e.g. VLAN 20).
+
+### Firewall policy (conceptual)
+
+Create rules on the UniFi gateway in the **LAN IN** (or equivalent) rule set,
+ordered as shown:
+
+1. **Allow admin laptop → Postgres**
+   - Action: **Accept**
+   - Protocol: **TCP**
+   - Source: **Admin laptop IP**
+   - Destination: **n8n host IP** (e.g. `10.20.0.6`)
+   - Destination port: **5432**
+   - Comment: `Allow TablePlus access to n8n Postgres`
+
+2. **Block all other Postgres access**
+   - Action: **Drop** (or Reject if you prefer explicit feedback)
+   - Protocol: **TCP**
+   - Source: **Any**
+   - Destination: **n8n host IP**
+   - Destination port: **5432**
+   - Comment: `Block Postgres access to n8n host`
+
+This preserves TablePlus convenience while preventing lateral access from other
+hosts or VLANs.
+
+### Alternative (safer) mode
+
+Instead of exposing Postgres on the LAN:
+
+- Set `POSTGRES_BIND_IP=127.0.0.1`
+- Use SSH port forwarding when needed:
+
+  ```bash
+  ssh -L 5432:127.0.0.1:5432 tim@n8n
+  ```
+
+- Connect TablePlus to `localhost:5432`
+
