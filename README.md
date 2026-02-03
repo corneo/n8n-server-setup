@@ -1,11 +1,6 @@
-# n8n (homelab) deployment
+# Local host/server n8n deployment
 
-This repo contains the artifacts needed to deploy an n8n stack under:
-
-- `/opt/n8n`
-- Docker Compose
-- Postgres (`postgres:16-alpine`)
-- Persistent data on the filesystem (bind mounts)
+This repo contains the guidance and artifacts needed to deploy an n8n stack on a 'local' server, that is, to impliment self-hosted n8n server.
 
 It is designed for a single-user homelab machine where the primary user (e.g. `tim`)
 has `sudo` access.
@@ -14,11 +9,9 @@ has `sudo` access.
 
 ## What’s in this repo
 
-- `docker-compose.yml` — n8n + postgres services
-- `.env.example` — template for runtime environment variables (NO secrets)
-- `setup.sh` — creates directories, sets ownership/permissions, creates `.env` if missing
-- Optional: scripts you may add later:
-  - `scripts/backup.sh`, `scripts/restore.sh`
+- `docker-compose.yml` — n8n + n8n runners + postgres services
+- `.env.example` — Example template for runtime environment variables. Nos secrets are in this file. Guidance for defining/obtaining these is given in comments in .env.example.
+- `setup.sh` — creates directories, sets ownership/permissions, creates `.env` if missing. Provides guidance just before completion for further setup actions. 
 
 ---
 
@@ -26,11 +19,9 @@ has `sudo` access.
 
 - The real `.env` file is **never committed**.
 - Postgres data directory is owned by Postgres’ container UID/GID (**70:70** for `postgres:16-alpine`)
-  and permissions are **700**. This prevents accidental reads/writes by normal users on the host.
-- n8n’s persistence directory (`/opt/n8n/data`) is owned by the local admin user and is readable/writable
-  without `sudo`.
-- For HTTP-only LAN access, set `N8N_SECURE_COOKIE=false`. When you later add HTTPS/reverse-proxy, remove
-  that override.
+  and permissions are **700**. This prevents accidental reads/writes by other users on the host.
+- n8n’s persistence directory (`/opt/n8n/data`) is owned by the local admin user and is readable/writable without `sudo` access.
+- For HTTP-only LAN access, `N8N_SECURE_COOKIE=false` i set. This will be removed when SSL and reverse-proxy are implemented.  (See ToDo's below.)
 
 ---
 
@@ -45,11 +36,10 @@ sudo mkdir -p /opt/n8n
 sudo chown "$USER":"$USER" /opt/n8n
 
 cd /opt/n8n
-git clone <YOUR_REPO_URL> .
+git clone git@github.com:corneo/n8n-server-setup.git .
 ```
 
-> Note: Cloning into `.` keeps the directory name fixed as `/opt/n8n`,
-> regardless of the repo name.
+> Note: Cloning into `.` keeps the directory name fixed as `/opt/n8n`, regardless of the repo name.
 
 ### 2) Run setup
 
@@ -155,6 +145,22 @@ Examples:
   `N8N_SECURE_COOKIE=false`.
 
 ---
+
+## ToDo:
+
+- add scripts for backup and restore:
+  - `scripts/backup.sh`, 
+  - `scripts/restore.sh`
+- Schedule backups
+  - Define strategy
+    - When
+    - Days, weeks, months, years
+    - Where to store. (DropBox?)
+
+- Implement strategy
+  
+  - 
+  - add to cron
 
 ## TODO: Restrict Postgres LAN Access with UniFi Firewall Rules
 
