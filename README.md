@@ -1,6 +1,6 @@
 # Local host/server n8n deployment
 
-This repo contains the guidance and artifacts needed to deploy an n8n stack on a 'local' server, that is, to impliment self-hosted n8n server.
+This repo contains the guidance and artifacts needed to deploy a self-hosted n8n stack using a docker composition.
 
 It is designed for a single-user homelab machine where the primary user (e.g. `tim`)
 has `sudo` access.
