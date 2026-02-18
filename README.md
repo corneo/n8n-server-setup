@@ -18,7 +18,7 @@ has `sudo` access.
 ## Security model (high level)
 
 - The real `.env` file is **never committed**.
-- Postgres data directory is owned by Postgres’ container UID/GID (**70:70** for `postgres:16-alpine`)
+- Postgres data directory is owned by Postgres’ container UID/GID (999:999)
   and permissions are **700**. This prevents accidental reads/writes by other users on the host.
 - n8n’s persistence directory (`/opt/n8n/data`) is owned by the local admin user and is readable/writable without `sudo` access.
 - For HTTP-only LAN access, `N8N_SECURE_COOKIE=false` i set. This will be removed when SSL and reverse-proxy are implemented.  (See ToDo's below.)
