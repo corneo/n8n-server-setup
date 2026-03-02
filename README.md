@@ -10,7 +10,7 @@ has `sudo` access.
 ## What’s in this repo
 
 - `docker-compose.yml` — n8n + n8n runners + postgres services
-- `.env.example` — Example template for runtime environment variables. Nos secrets are in this file. Guidance for defining/obtaining these is given in comments in .env.example.
+- `.env.example` — Example template for runtime environment variables. No secrets are in this file. Guidance for defining/obtaining these is given in comments in .env.example.
 - `setup.sh` — creates directories, sets ownership/permissions, creates `.env` if missing. Provides guidance just before completion for further setup actions. 
 
 ---
