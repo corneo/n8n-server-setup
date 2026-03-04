@@ -77,7 +77,7 @@ gunzip -c /opt/n8n/backups/n8n-YYYY-MM-DD.sql.gz | docker exec -i n8n-postgres p
 - `N8N_ENCRYPTION_KEY` must never change once set — changing it breaks all stored credentials in the DB.
 - `.env` is never committed. Secrets are copy/pasted manually from 1Password.
 - `service.n8n.json` and `vaults.lst` are 1Password-related files — they may contain sensitive values and must not be committed.
-- Postgres data dir (`/opt/n8n/postgres`) is owned by UID/GID 70:70 with mode 700.
+- Postgres data dir (`/opt/n8n/postgres`) is created and owned by postgres (uid 70, gid 0) on first start — do not pre-create it.
 - `/home/ops/.op_env` on each host contains the OP service account token (mode 600). Placed by `provision-host.sh` Phase 5b; sourced by `provision-service.sh` at deploy time. Never committed.
 
 ## 1Password conventions

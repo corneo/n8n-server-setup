@@ -63,8 +63,10 @@ log "Provisioning host: $HOST (env: $ENV, vault: $VAULT)"
 
 # ── Phase 1: System update ────────────────────────────────────────────────────
 
-log "Phase 1: System update..."
-ssh "$TARGET" "sudo DEBIAN_FRONTEND=noninteractive apt update && sudo DEBIAN_FRONTEND=noninteractive apt full-upgrade -y"
+log "Phase 1: System update and base packages..."
+ssh "$TARGET" "sudo DEBIAN_FRONTEND=noninteractive apt update \
+  && sudo DEBIAN_FRONTEND=noninteractive apt full-upgrade -y \
+  && sudo DEBIAN_FRONTEND=noninteractive apt install -y jq"
 
 # ── Phase 2: Install Docker ───────────────────────────────────────────────────
 
@@ -190,6 +192,7 @@ ENDSSH
 
 log "Phase 7: Setting script permissions..."
 ssh "$TARGET" "find ${INSTALL_DIR} -name '*.sh' -exec chmod +x {} \;"
+
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 

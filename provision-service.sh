@@ -64,9 +64,17 @@ ssh "$TARGET" "git -C ${INSTALL_DIR} pull"
 ssh "$TARGET" "test -d ${SERVICE_DIR}" \
   || die "Service '${SERVICE}' not found in repo at ${SERVICE_DIR}. Is it supported?"
 
-# ── Step 2: Generate .env from 1Password ─────────────────────────────────────
+# ── Step 2: Run pre-deploy hook (if present) ─────────────────────────────────
 
-log "Step 2: Generating .env from 1Password (vault: $VAULT, item: service.${SERVICE})..."
+PRE_DEPLOY="${SERVICE_DIR}/pre-deploy.sh"
+if ssh "$TARGET" "test -f ${PRE_DEPLOY}"; then
+  log "Step 2: Running pre-deploy hook..."
+  ssh "$TARGET" "bash ${PRE_DEPLOY}"
+fi
+
+# ── Step 3: Generate .env from 1Password ─────────────────────────────────────
+
+log "Step 3: Generating .env from 1Password (vault: $VAULT, item: service.${SERVICE})..."
 
 # Host sources its own OP service account token (placed by provision-host.sh)
 # and calls gen-env.sh locally — secrets never pass through the admin workstation.
@@ -78,7 +86,7 @@ ssh "$TARGET" "source ~/.op_env && \
 
 # ── Step 3: Deploy via Docker Compose ────────────────────────────────────────
 
-log "Step 3: Deploying with Docker Compose..."
+log "Step 4: Deploying with Docker Compose..."
 ssh "$TARGET" bash << ENDSSH
 set -euo pipefail
 cd ${SERVICE_DIR}
