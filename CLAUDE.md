@@ -117,3 +117,5 @@ When moving from HTTP to HTTPS (e.g. adding Traefik/Caddy): update `N8N_HOST`, `
 
 1. ~~YAML-based provisioning spec~~ — Implemented: `provision.sh`, `gen-spec.sh`, `servers.example.yaml`.
 2. During apt full-upgrade, an interactive prompt appeared for `/etc/chromium/master_preferences`. Likely fixed by `DEBIAN_FRONTEND=noninteractive` added in Phase 1 — **in abeyance, confirm resolved on next provision run**.
+3.  Review Env vars section.
+4.  I would like to create an NGINX docker app/composition. If there is a way to add proxies unique per deployment, awesome. It is likely that I will use NGINX on servers other than n8n. Maybe an app.nginx section could carry server specific configuration info.
